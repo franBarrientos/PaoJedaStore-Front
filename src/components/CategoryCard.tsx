@@ -19,9 +19,16 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { CategoryInterface } from "../interfaces/category";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   createFormData,
   getDifferentFields,
@@ -30,11 +37,13 @@ import {
 import { useToastResponses } from "../hook/useToastResponses";
 import { updateCategory } from "../api/category.api";
 import { updateCategoriesRX } from "../helpers/subjectsRx.helper";
+import apiClient from "../config/axiosClient";
 
 type props = {
   category: CategoryInterface;
 };
 export const CategoryCard: React.FC<props> = ({ category }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isOpen1,
     onOpen: onOpen1,
@@ -46,7 +55,7 @@ export const CategoryCard: React.FC<props> = ({ category }) => {
     img?: string | File;
   }>({ name: category.name, img: category.img });
   const { error, success, warning } = useToastResponses();
-  
+  const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!isOpen1) {
@@ -90,7 +99,7 @@ export const CategoryCard: React.FC<props> = ({ category }) => {
     try {
       const response = await updateCategory(formDataa, category.id);
       if (!response.data.ok) throw new Error("err");
-      updateCategoriesRX.setSubject(true)
+      updateCategoriesRX.setSubject(true);
       success("Cambios guardados correctamente");
       onClose1();
       setIsLoading(false);
@@ -136,6 +145,54 @@ export const CategoryCard: React.FC<props> = ({ category }) => {
             >
               Editar
             </Button>
+            {category.state ? (
+              <Button
+                onClick={() => onOpen()}
+                variant="solid"
+                colorScheme="red"
+                shadow={"xl"}
+              >
+                Eliminar
+              </Button>
+            ) : (
+              <Button
+                onClick={async () => {
+                  try {
+                    setIsLoading(true);
+                    const categoryUpdated = await apiClient.put(
+                      `/category/${category.id}`,
+                      {
+                        state: true,
+                      },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                          )}`,
+                        },
+                      }
+                    );
+                    if (categoryUpdated && categoryUpdated.data.ok) {
+                      success("Categoria actualizada correctamente");
+                      setIsLoading(false);
+                      onClose();
+                      updateCategoriesRX.setSubject(true);
+                    }
+                  } catch (errorFromCatch) {
+                    console.log(errorFromCatch);
+                    setIsLoading(false);
+                    error(
+                      "No se ha podido dar de alta la categoria algo ocurrio.."
+                    );
+                  }
+                }}
+                variant="solid"
+                colorScheme="green"
+                shadow={"xl"}
+              >
+                Alta
+              </Button>
+            )}
           </Stack>
         </CardFooter>
       </Stack>
@@ -189,6 +246,67 @@ export const CategoryCard: React.FC<props> = ({ category }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <AlertDialog
+        motionPreset="slideInBottom"
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>Presiona si para confirmar</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            Estas seguro que deseas eliminar? Se eliminaran todos los productos
+            de esta categoria
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button onClick={onClose}>No</Button>
+            {isLoading ? (
+              <Flex justifyContent={"center"} alignItems={"center"}>
+                <CircularProgress isIndeterminate color="green.300" />
+              </Flex>
+            ) : (
+              <Button
+                colorScheme="red"
+                ml={3}
+                onClick={async () => {
+                  try {
+                    setIsLoading(true);
+                    const categoryUpdated = await apiClient.put(
+                      `/category/${category.id}`,
+                      {
+                        state: false,
+                      },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                          )}`,
+                        },
+                      }
+                    );
+                    if (categoryUpdated && categoryUpdated.data.ok) {
+                      success("Categoria eliminada correctamente");
+                      setIsLoading(false);
+                      onClose();
+                      updateCategoriesRX.setSubject(true);
+                    }
+                  } catch (errorFromCatch) {
+                    console.log(errorFromCatch);
+                    setIsLoading(false);
+                    error("No se ha podido elimar la categoria algo ocurrio..");
+                  }
+                }}
+              >
+                Si
+              </Button>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

@@ -13,14 +13,13 @@ import { ProductInterface } from "../../interfaces/product";
 import ModalHistory from "./ModalHistory";
 import { useState, useEffect } from "react";
 import { Paginacion } from "../../components/Paginacion";
-import { modalesRX } from "../../helpers/subjectsRx.helper";
-import { SearchProductButton} from "../../components/SearchProductButton"
+import { modalesRX, updateProductsRX } from "../../helpers/subjectsRx.helper";
+import { SearchProductButton } from "../../components/SearchProductButton";
 import WhatsappButton from "../../components/WhatsappButton";
+import { InstagramButton } from "../../components/InstagranButton";
 interface props {
   isAdmin?: boolean;
 }
-
-
 
 export default function Home({ isAdmin = false }: props) {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -30,22 +29,36 @@ export default function Home({ isAdmin = false }: props) {
   const [spinnerPayMercadoP, setSpinnerPayMercadoP] = useState<boolean>(false);
 
   const generateUrlWithPagination = (): string =>
-  `/product?skip=${currentPage}&&category=${actualCategory?.id}`;
+    isAdmin
+      ? `/productAdmin?skip=${currentPage}&&category=${actualCategory?.id}`
+      : `/product?skip=${currentPage}&&category=${actualCategory?.id}`;
 
   const fetcher = async (url: string) => {
-    const response = await apiClient(url);
+    const response = await apiClient(url,{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     setIsLoadingFetch(false);
     setTotalPages(response.data.body.totalPages);
     return response.data;
   };
 
-  const { data, isLoading, error } = useSWR(
+  const { data, isLoading, error, mutate } = useSWR(
     generateUrlWithPagination(),
     fetcher,
     {
       refreshInterval: 1000,
     }
   );
+
+  useEffect(() => {
+    updateProductsRX.getSubject.subscribe((value) => {
+      if (value == true) {
+        mutate();
+      }
+    });
+  }, []);
 
   useEffect(() => {
     modalesRX.getSubject.subscribe(([value, data]) => {
@@ -63,8 +76,6 @@ export default function Home({ isAdmin = false }: props) {
     setCurrentPage(1);
   }, [actualCategory]);
 
-
-
   if (isLoading) {
     return (
       <CircularProgress
@@ -73,7 +84,6 @@ export default function Home({ isAdmin = false }: props) {
         size="120px"
         position="absolute"
         top="50%"
-  
         left="50%"
         transform="translate(-50%, -50%)"
       />
@@ -82,7 +92,7 @@ export default function Home({ isAdmin = false }: props) {
   if (error)
     return (
       <Text color="ly.700" textAlign={"center"} fontSize={"2xl"}>
-        Ups! Algo ocurrio en el servidor... o No hay aun Productos
+        Ups! No hay aun Productos en esta categoria
       </Text>
     );
   const productos: ProductInterface[] = data?.body?.products || [];
@@ -104,18 +114,33 @@ export default function Home({ isAdmin = false }: props) {
           py={2}
           px={3}
         >
-          <Text fontSize={"4xl"} fontWeight={"bold"} shadow={"2xl"}>
+          <Text
+            fontSize={{ base: "4xl", md: "5xl" }}
+            fontWeight={"bold"}
+            shadow={"2xl"}
+            fontFamily={"-moz-initial"}
+          >
             {actualCategory?.name}
           </Text>
         </Box>
-        <Flex mb={5} w={"full"} direction={["column","column","column","column", "row"]}>
-        <Text flex={4} pl={{xl:80}} textAlign={"center"} fontSize={"2xl"} my={8} color={"ly.400"}>
-          Elija y Personalize su pedido
-        </Text>
-        <SearchProductButton/>
-
+        <Flex
+          mb={5}
+          w={"full"}
+          direction={["column", "column", "column", "column", "row"]}
+        >
+          <Text
+            flex={4}
+            pl={{ xl: 80 }}
+            textAlign={"center"}
+            fontSize={"2xl"}
+            my={8}
+            color={"ly.400"}
+          >
+            Elija y Personalize su pedido
+          </Text>
+          <SearchProductButton isAdmin={isAdmin}/>
         </Flex>
-        <SimpleGrid gap={5} justifyContent={"center"} columns={[1, 1, 2, 2, 3]}>
+        <SimpleGrid gap={5} justifyContent={"center"} columns={[1, 1, 1, 2, 3]}>
           {productos.map((producto: ProductInterface) => (
             <Producto producto={producto} key={producto.id} isAdmin={isAdmin} />
           ))}
@@ -130,6 +155,7 @@ export default function Home({ isAdmin = false }: props) {
         />
       </Flex>
       <WhatsappButton />
+      <InstagramButton />
       <ModalHistory />
 
       {spinnerPayMercadoP && (

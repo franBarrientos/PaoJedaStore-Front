@@ -31,6 +31,7 @@ export const CardPurchaseAdmin:React.FC<props> = ({purchase}) => {
         <Heading size="md">Dni: {purchase.customer.dni}</Heading>
         <Heading size="sm">Direccion: {purchase.customer.addres}</Heading>
         <Heading size="sm">Correo: {purchase.customer.user.email}</Heading>
+        <Heading size="md">Telefono: {purchase.customer.phone}</Heading>
         <Heading size="md">
           Estado de Compra:{" "}
           {purchase.state == "paid" ? "Pagado" : purchase.state}

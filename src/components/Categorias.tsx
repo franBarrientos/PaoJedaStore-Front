@@ -23,7 +23,6 @@ export default function Categoria({ category, isAdmin = false }: props) {
       display={"flex"}
       alignItems={"center"}
       gap={2}
-      mt={2}
       color={
         !isAdmin
           ? actualCategory!.id === category.id
@@ -47,8 +46,8 @@ export default function Categoria({ category, isAdmin = false }: props) {
           : "ly.800"
       }
     >
-      <Img rounded={"full"} w={"12"} src={category.img}></Img>
-      <Text fontSize="lg" fontWeight={"semibold"}>
+      <Img rounded={"full"} w={"12"} height={"14"} src={category.img}></Img>
+      <Text fontSize="xl" fontWeight={"semibold"}>
         {" "}
         {category.name}{" "}
       </Text>

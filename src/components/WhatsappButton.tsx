@@ -5,7 +5,7 @@ const WhatsappButton = () => {
   const numeroWhatsApp = import.meta.env.VITE_WPP;
 
   const openWhatsApp = () => {
-    const mensaje = "¡Hola Cami 😊! Muy lindas las joyas, necesito ayuda en ..";
+    const mensaje = "¡Hola Pao 😊! necesito ayuda en ";
     const enlaceWhatsApp = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(
       mensaje
     )}&type=phone_number`;

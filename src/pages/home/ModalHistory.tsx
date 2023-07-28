@@ -9,6 +9,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Text
 } from "@chakra-ui/react";
 import useApp from "../../hook/useApp";
 import { useState, useEffect } from "react";
@@ -24,10 +25,14 @@ export default function ModalHistory() {
   const observable = modalesRX.getSubject;
   const fetchPurchases = async () => {
     try {
-      const { data } = await getPurchasesByCustomer(user?.customer?.id ? user?.customer?.id : 999);
+      const { data } = await getPurchasesByCustomer(
+        user?.customer?.id ? user?.customer?.id : 999
+      );
       setPurchases(data.body);
     } catch (error) {
-      setOpenHistory(false);
+      setTimeout(() => {
+        setOpenHistory(false);
+      }, 2000);
       console.log(error);
     }
     setIsLoading(false);
@@ -59,29 +64,35 @@ export default function ModalHistory() {
           bg={"ly.900"}
           color={"ly.700"}
         >
-          <ModalHeader>🛍 Compras 🛍</ModalHeader>
-          <ModalCloseButton />
-          {isLoading ? (
-            <Flex mt={4} justifyContent={"center"} alignItems={"center"}>
-              <CircularProgress isIndeterminate color="green.300" />
-            </Flex>
+          {!purchases ? (
+            <ModalHeader>Aun no Hay compras realizadas..</ModalHeader>
           ) : (
-            <ModalBody>
-              {purchases?.map((purchase) => {
-                return <CardHistory key={purchase.id} {...purchase} />;
-              })}
-            </ModalBody>
-          )}
+            <>
+              <ModalHeader>🛍 Compras 🛍</ModalHeader>
+              <ModalCloseButton />
+              {isLoading ? (
+                <Flex mt={4} justifyContent={"center"} alignItems={"center"}>
+                  <CircularProgress isIndeterminate color="green.300" />
+                </Flex>
+              ) : (
+                <ModalBody>
+                  {purchases?.map((purchase) => {
+                    return <CardHistory key={purchase.id} {...purchase} />;
+                  })}
+                </ModalBody>
+              )}
 
-          <ModalFooter>
-            <Button
-              colorScheme="red"
-              mr={3}
-              onClick={() => setOpenHistory(false)}
-            >
-              Cerrar
-            </Button>
-          </ModalFooter>
+              <ModalFooter>
+                <Button
+                  colorScheme="red"
+                  mr={3}
+                  onClick={() => setOpenHistory(false)}
+                >
+                  Cerrar
+                </Button>
+              </ModalFooter>
+            </>
+          )}
         </ModalContent>
       </Modal>
     </>

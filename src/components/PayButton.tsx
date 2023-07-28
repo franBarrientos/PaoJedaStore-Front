@@ -53,12 +53,17 @@ export default function PayButton() {
       formData.addres.length > 3 &&
       formData.dni &&
       formData.dni.length == 8 &&
-      (formData.dni = Number(formData.dni))
+      (formData.dni = Number(formData.dni)) &&
+      formData.phone && formData.phone.length > 5 && formData.phone.length < 15
     ) {
       try {
         const response = await apiClient.post("/customer", {
           ...formData,
           user: user?.id,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
 
         if (response.data.ok) {
@@ -71,7 +76,7 @@ export default function PayButton() {
         }
       } catch (error) {
         toast({
-          title: "Error de servidor",
+          title: "Error de servidor o valores no Validos",
           status: "error",
           duration: 1000,
           position: "top-left",
@@ -82,7 +87,7 @@ export default function PayButton() {
       }
     } else {
       toast({
-        title: "Valores Incorrectos",
+        title: "Valores No validos",
         status: "error",
         duration: 1000,
         position: "top-left",
@@ -167,7 +172,7 @@ export default function PayButton() {
                 <Input
                   {...register("addres")}
                   type="text"
-                  placeholder="Tu direccion"
+                  placeholder="Tu direccion/barrio ej: Valintin alsina 900 san roque"
                   focusBorderColor="gray.600"
                   borderColor={"whiteAlpha.300"}
                   shadow={"xl"}
@@ -175,11 +180,23 @@ export default function PayButton() {
                 />
               </FormControl>
               <FormControl mt={4}>
-                <FormLabel>Dni</FormLabel>
+                <FormLabel>Dni </FormLabel>
                 <Input
                   {...register("dni")}
-                  type="number"
-                  placeholder="Tu dni"
+                  type="text"
+                  placeholder="Tu dni (sin puntos ) ej: 48965238"
+                  focusBorderColor="gray.600"
+                  borderColor={"whiteAlpha.300"}
+                  shadow={"xl"}
+                  _placeholder={{ color: "gray.400" }}
+                />
+              </FormControl>
+              <FormControl mt={4}>
+                <FormLabel>Numero de Contacto</FormLabel>
+                <Input
+                  {...register("phone")}
+                  type="text"
+                  placeholder="Tu numero ej: 3794673547"
                   focusBorderColor="gray.600"
                   borderColor={"whiteAlpha.300"}
                   shadow={"xl"}
@@ -200,7 +217,7 @@ export default function PayButton() {
                         rounded={"xl"}
                         w={45}
                         h={38}
-                        src="https://play-lh.googleusercontent.com/YCT9pYI8KOkOuvVtAkB8103BektOn973BW-t4srwhSMbpj0HUVQf10hVusFpmTTbHg"
+                        src="mercadopago.webp"
                       ></Img>
 
                       <Text ml={3}> Mercado Pago</Text>

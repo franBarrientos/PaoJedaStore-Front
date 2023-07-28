@@ -2,20 +2,30 @@ import { Box, Heading, Flex } from "@chakra-ui/react";
 import Chart from "chart.js/auto";
 import { useEffect } from "react";
 import apiClient from "../../config/axiosClient";
+import { formatDate } from "../../utils/dates";
 export default function Stadistics() {
   useEffect(() => {
     (async function () {
-      const data = [
-        { year: 2022, count: 190000 },
-        { year: 2023, count: 200000 },
-   
+      let data = [
+        { dia: "ayer", count: 120 },
+        { dia: "hoy", count: 120 },
       ];
- 
+
       let data1: any;
       let data2: any;
       try {
-        const response = await apiClient.get("/purchase/stadistics");
+        const response = await apiClient.get("/purchase/stadistics", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         if (!response.data.ok) throw new Error("err");
+        data = response.data.body.stadisticsLast10days.map((data:{date:string,totalSales:string}) => {
+          return {
+            dia: formatDate(data.date),
+            count: Number(data.totalSales),
+          };
+        });
         data1 = {
           labels: response.data.body.stadisticsProducts.map(
             (product: any) => product.productName
@@ -102,10 +112,10 @@ export default function Stadistics() {
         new Chart(chartElement, {
           type: "bar",
           data: {
-            labels: data.map((row) => row.year),
+            labels: data.map((row) => row.dia),
             datasets: [
               {
-                label: "Ventas por año",
+                label: "Total Vendido en los ultimos 10 dias",
                 data: data.map((row) => row.count),
               },
             ],

@@ -7,7 +7,6 @@ import {
   Stack,
   CardFooter,
   Button,
-  
   Flex,
 } from "@chakra-ui/react";
 import { ProductInterface } from "../interfaces/product";
@@ -35,23 +34,33 @@ export default function ProductResumen(props: { product: ProductInterface }) {
       />
 
       <Stack>
-        <CardBody>
+        <CardBody pb={0}>
           <Heading size="md">{props.product.name}</Heading>
 
           <Text py="2">{props.product.description}</Text>
         </CardBody>
-        <Flex justifyContent={"center"}>
+        <Flex justifyContent={"center"} >
           <Button
             px={1}
-            w={{ base: "24", md: "36" }}
+            w={{ base: "28", md: "36" }}
             variant="solid"
+            py={6}
+            paddingX={{base:10, md:0}}
             colorScheme="yellow"
           >
-            <Text fontSize={"md"} color={"ly.900"}>
-
-            Cantidad: {props.product.quantity}
-
-            </Text>
+            <Flex
+              direction={"column"}
+              gap={1}
+              justifyContent={"center"}
+              alignItems={"center"}
+            >
+              <Text fontWeight={"semibold"} fontSize={"lg"} color={"ly.900"}>
+                Cantidad: {props.product.quantity}
+              </Text>
+              <Text fontWeight={"semibold"} fontSize={"lg"} color={"ly.900"}>
+                Talle: {props.product.size?.name}
+              </Text>
+            </Flex>
           </Button>
         </Flex>
         <CardFooter

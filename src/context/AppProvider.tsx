@@ -47,12 +47,12 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const categoriesAdmin: CategoryInterface[] = [
     {
       id: 2,
-      img: "https://res.cloudinary.com/dkkd5eszg/image/upload/w_1000,ar_1:1,c_fill,g_auto,f_webp/v1689558498/AYG0062BIG1_lmmx2d.jpg",
+      img: "https://res.cloudinary.com/dacgvqpeg/image/upload/w_1000,ar_1:1,c_fill,g_auto,f_webp/v1690220943/golden-dress_x2bqj5.jpg",
       name: "Productos",
     },
     {
       id: 3,
-      img: "https://res.cloudinary.com/dacgvqpeg/image/upload/w_1000,ar_1:1,c_fill,g_auto,f_webp/v1688648259/images_ffrrid.jpg",
+      img: "https://res.cloudinary.com/dacgvqpeg/image/upload/w_1000,ar_1:1,c_fill,g_auto,f_webp/v1690221185/60431086-colecci_C3_B3n-de-oto_C3_B1o-de-la-ropa-para-las-mujeres-j_C3_B3venes-y-una-ni_C3_B1a-ilustraci_C3_B3n-vectorial-dise_C3_B1o-de_dnma0a.jpg",
       name: "Categorias",
     },
     {
@@ -79,8 +79,10 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   );
   const toast = useToast();
   const subscribe = updateCategoriesRX.getSubject;
+
   const fetchCategories = async () => {
     try {
+      
       const response = await getAllCategories();
       if (!response.data.ok) throw new Error("Error fetch categories");
       setCategories(response.data.body);
@@ -150,7 +152,13 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   };
 
   const handleAddToCarrito = (product: ProductInterface) => {
-    if (carrito.some((carritoState) => carritoState.id == product.id)) {
+    if (
+      carrito.some(
+        (carritoState) =>
+          carritoState.id == product.id &&
+          carritoState.size?.id == product.size?.id
+      )
+    ) {
       const carritoActualizado = carrito.map((carritoState) =>
         carritoState.id == product.id ? product : carritoState
       );
@@ -206,18 +214,22 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     const response = await createOrderMp(carrito, idPurchase);
     window.location.replace(response.data.body.urlMercadoPago);
   };
-  const goToWpp = (nroPurchase:number) => {
-    const userLocalStorage = JSON.parse(localStorage.getItem("user")!)
-    const address = userLocalStorage.customer.addres? userLocalStorage.customer.addres : " "
+  const goToWpp = (nroPurchase: number) => {
+    const userLocalStorage = JSON.parse(localStorage.getItem("user")!);
+    const address = userLocalStorage.customer.addres
+      ? userLocalStorage.customer.addres
+      : " ";
     const numeroWhatsApp = import.meta.env.VITE_WPP;
     const mensaje: string = `
-      ¡Hola Cami 😊!
+      ¡Hola 😊!
       Confirmo la compra *${nroPurchase}*
       Este fue mi pedido...
-      ${[null,...carrito].map((product) => {
-        if (product === null) return '\n';
-        return ` ✅${product.name} Cantidad:${product.quantity}\n`;
-      }).join('')}
+      ${[null, ...carrito]
+        .map((product) => {
+          if (product === null) return "\n";
+          return ` ✅${product.name} Cantidad:${product.quantity}\n`;
+        })
+        .join("")}
       El total del pedido fue de $${totalCarrito()}    
       Mi dirección es - ${address}
       Espero el precio del envio...
@@ -235,7 +247,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
         payment,
         customer: customerId,
       });
-      if (!response.data.ok) throw new Error("err");
+      if (!response.data.ok) throw new Error("Error al crear la compra");
       if (payment == "MP") payMercadoPago(response.data.body.id);
       if (payment == "CASH") goToWpp(response.data.body.id);
       Promise.all(
@@ -244,6 +256,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
             quantity: product.quantity!,
             purchase: response.data.body.id,
             product: product.id,
+            size: product.size,
           });
         })
       )
@@ -261,12 +274,16 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
           return;
         })
         .catch(() => {
-          throw new Error("err");
+          throw new Error("Error al crear las compras");
+          modalesRX.setSubject(["mercadopago-spinner", false]);
         });
     } catch (error) {
       modalesRX.setSubject(["mercadopago-spinner", false]);
       toast({
-        title: "Error de server",
+        title:
+          error instanceof Error
+            ? error.message
+            : "Algo ocurrio en el servidor",
         status: "error",
         duration: 1500,
         isClosable: true,

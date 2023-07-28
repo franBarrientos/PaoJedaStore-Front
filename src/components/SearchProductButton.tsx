@@ -21,7 +21,10 @@ import { ProductInterface } from "../interfaces/product";
 import { useState, useRef } from "react";
 import Producto from "./Producto";
 import { Paginacion } from "./Paginacion";
-export const SearchProductButton = () => {
+type props = {
+  isAdmin?: boolean;
+};
+export const SearchProductButton = ({isAdmin = false}:props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [results, setResults] = useState<ProductInterface[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -54,7 +57,12 @@ export const SearchProductButton = () => {
       <Box>
         <form onSubmit={handleSubmit}>
           <Flex justifyContent={"center"} alignItems={"center"} gap={1}>
-            <Input color={"ly.400"} type={"text"} ref={name} placeholder={"Ej: Cadena de oro"} />
+            <Input
+              color={"ly.400"}
+              type={"text"}
+              ref={name}
+              placeholder={"Ej: Jeans mom"}
+            />
             <Button type="submit" /* onClick={handleSubmit} */>
               <Search2Icon />
             </Button>
@@ -88,7 +96,7 @@ export const SearchProductButton = () => {
                         <Producto
                           producto={producto}
                           key={producto.id}
-                          isAdmin={true}
+                          isAdmin={isAdmin}
                         />
                       ))}
                     </SimpleGrid>

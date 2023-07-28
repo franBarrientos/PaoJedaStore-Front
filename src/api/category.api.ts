@@ -3,8 +3,12 @@ import apiClient from "../config/axiosClient";
 
 const prefix = "/category";
 
-export const getAllCategories = (): Promise<AxiosResponse<any, any>> => {
-  return apiClient.get(prefix);
+export const getAllCategories = (isAdmin = false): Promise<AxiosResponse<any, any>> => {
+  if(isAdmin){
+    return apiClient.get("/category?isAdmin=true")
+  }else{
+    return apiClient.get(prefix);
+  }
 };
 
 export const createNewCategory = (

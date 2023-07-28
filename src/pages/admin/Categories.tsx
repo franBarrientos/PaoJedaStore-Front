@@ -23,21 +23,34 @@ import {
 import MenuMobile from "../../components/MenuMobile";
 import { useMediaQuery } from "react-responsive";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useApp from "../../hook/useApp";
 import { CategoryCard } from "../../components/CategoryCard";
 import { createFormData } from "../../utils/validators";
 import { useToastResponses } from "../../hook/useToastResponses";
-import { createNewCategory } from "../../api/category.api";
+import { createNewCategory, getAllCategories } from "../../api/category.api";
 import { updateCategoriesRX } from "../../helpers/subjectsRx.helper";
+import { CategoryInterface } from "../../interfaces/category";
 
 export default function Categories() {
   const { categories } = useApp();
+
+  const [categoriesAdmin, setCategoriesAdmin] = useState<
+    CategoryInterface[] | null
+  >(null);
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { handleSubmit, register, getValues, reset } = useForm();
   const [isLoading, setIsLoading] = useState(false);
   const { error, success } = useToastResponses();
+
+  useEffect(() => {
+    const getCategoriesAdmin = async () => {
+      const response = await getAllCategories(true);
+      setCategoriesAdmin(response.data.body);
+    };
+    getCategoriesAdmin();
+  }, [categories]);
 
   const onSubmitNewCategory = async () => {
     setIsLoading(true);
@@ -78,7 +91,6 @@ export default function Categories() {
           alignContent={"center"}
           pb={4}
           gap={5}
-
         >
           <MenuMobile />
           <Button
@@ -132,7 +144,7 @@ export default function Categories() {
 
       <Flex justifyContent={"center"}>
         <SimpleGrid gap={5} columns={[1, 1, 2, 2, 3]}>
-          {categories?.map((category) => (
+          {categoriesAdmin?.map((category) => (
             <CategoryCard category={category} key={category.id} />
           ))}
         </SimpleGrid>
@@ -161,7 +173,12 @@ export default function Categories() {
 
               <FormControl mt={4}>
                 <FormLabel>Imagen</FormLabel>
-                <input type="file" {...register("img")} name="img" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  {...register("img")}
+                  name="img"
+                />
               </FormControl>
             </form>
           </ModalBody>

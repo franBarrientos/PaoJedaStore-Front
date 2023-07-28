@@ -4,6 +4,12 @@ import { PurchasesProductsInterface } from "../interfaces/purchasesProducts";
 
 const prefix = "/purchasesProducts";
 
-export const createPurchasesProducts = (purchaseP:PurchasesProductsInterface): Promise<AxiosResponse<any, any>> => {
-  return apiClient.post(prefix, purchaseP);
+export const createPurchasesProducts = (
+  purchaseP: PurchasesProductsInterface
+): Promise<AxiosResponse<any, any>> => {
+  return apiClient.post(prefix, purchaseP, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
 };

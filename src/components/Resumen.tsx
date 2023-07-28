@@ -28,7 +28,7 @@ export default function Resumen() {
         p={2}
         mb={5}
       >
-        <Text fontSize={"4xl"} fontWeight={"bold"}>
+        <Text fontSize={"4xl"} fontWeight={"bold"} fontFamily={"-moz-initial"}>
           🛒 Carrito
         </Text>
       </Box>

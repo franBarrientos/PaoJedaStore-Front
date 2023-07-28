@@ -1,5 +1,6 @@
 export interface CategoryInterface{
     id:number;
     name:string;
-    img:string
+    img:string;
+    state?:boolean;
 }

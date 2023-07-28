@@ -9,7 +9,11 @@ const mpPrefix = "/create-order-mp";
 export const createPurchase = (
   purchase: PurchaseInterface
 ): Promise<AxiosResponse<any, any>> => {
-  return apiClient.post(prefix, purchase);
+  return apiClient.post(prefix, purchase, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
 };
 
 export const createOrderMp = (

@@ -164,11 +164,21 @@ export default function Sidebar() {
               {user?.firstName?.toUpperCase()}
             </Text>
           </Text>
-          <Flex direction={"column"} alignItems={"center"} justifyContent={"center"} gap={2}>
+
+
+
+          <Flex maxHeight={{base:"40vh", "2xl":"50vh"}} overflowY={"auto"} direction={"column"} alignItems={"center"} justifyContent={"flex-start"} gap={2}>
+
             {categories?.map((categoria) => (
               <Categoria category={categoria} key={categoria.id} />
             ))}
+
           </Flex>
+
+
+
+
+
           {user ? (
             <>
               <Button

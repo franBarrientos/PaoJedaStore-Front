@@ -29,7 +29,8 @@ import Home from "../home/Home";
 import { useToastResponses } from "../../hook/useToastResponses";
 import { createFormData } from "../../utils/validators";
 import { createNewProduct } from "../../api/product.api";
-import { SearchProductButton} from "../../components/SearchProductButton"
+import { sizesForm } from "../../helpers/subjectsRx.helper";
+import { FormularioSizes } from "../../components/FormularioSizes";
 
 export default function Products() {
   const { categories, handleClickCategory } = useApp();
@@ -45,7 +46,6 @@ export default function Products() {
     const img = getValues("img");
     const category: string = getValues("category").toString().trim();
     const price: string = getValues("price").toString().trim();
-
     if (name === "") {
       error("Ingrese un Nombre Valido");
       return false;
@@ -65,7 +65,7 @@ export default function Products() {
       return false;
     }
 
-    if (price === "") {
+    if (price === "" || isNaN(Number(price))) {
       error("Ingrese una Precio Valido");
       return false;
     }
@@ -78,6 +78,7 @@ export default function Products() {
       setIsLoading(false);
       return;
     }
+
     const formData = createFormData(getValues());
     try {
       reset();
@@ -85,6 +86,11 @@ export default function Products() {
       if (!response.data.ok) throw new Error("err");
       success(`${response.data.body.name} creado correctamente`);
       setIsLoading(false);
+      sizesForm.setSubject([
+        "createProduct",
+        true,
+        Number(response.data.body.id),
+      ]);
       onClose();
     } catch (errorFromCatch) {
       console.log(errorFromCatch);
@@ -135,7 +141,7 @@ export default function Products() {
                   {category.name}
                 </Tab>
               ))}
-            </TabList >
+            </TabList>
             <TabIndicator
               mt="-1.5px"
               height="4px"
@@ -143,7 +149,6 @@ export default function Products() {
               borderRadius="1px"
             />
           </Tabs>
-          <SearchProductButton />
         </Flex>
       )}
       <Home isAdmin={true} />
@@ -182,7 +187,7 @@ export default function Products() {
 
               <FormControl mt={4}>
                 <FormLabel>Imagen</FormLabel>
-                <input type="file" {...register("img")} name="img" />
+                <input type="file" accept="image/*" {...register("img")} name="img" />
               </FormControl>
               <FormControl mt={4}>
                 <FormLabel>Categoria</FormLabel>
@@ -202,8 +207,8 @@ export default function Products() {
                 <FormLabel>Precio</FormLabel>
                 <Input
                   {...register("price")}
-                  type="number"
-                  placeholder="Tu precio"
+                  type="text"
+                  placeholder="Tu precio (sin puntos) ej : 23000"
                   focusBorderColor="gray.600"
                   borderColor={"whiteAlpha.300"}
                   shadow={"xl"}
@@ -234,6 +239,7 @@ export default function Products() {
           </ModalFooter>
         </ModalContent>
       </Modal>
+     <FormularioSizes />
       {/*Modal of Create */}
     </>
   );
