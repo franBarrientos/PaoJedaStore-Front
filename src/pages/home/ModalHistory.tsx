@@ -8,8 +8,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  ModalOverlay,
-  Text
+  ModalOverlay
 } from "@chakra-ui/react";
 import useApp from "../../hook/useApp";
 import { useState, useEffect } from "react";
