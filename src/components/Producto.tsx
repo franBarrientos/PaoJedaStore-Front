@@ -147,7 +147,7 @@ export default function Producto({ producto, isAdmin = false }: productoProp) {
       const response = await updateProduct(formDataa, producto.id);
       if (!response.data.ok) throw new Error("err");
       updateProductsRX.setSubject(true);
-      success("Changes Saved Successfuly");
+      success("Cambios guardados correctamente");
       onClose1();
       setIsLoading(false);
       return;

@@ -7,3 +7,4 @@ export const sizesForm = new SubscribeManagerRx<[string, boolean, number, produc
 export const updateCategoriesRX = new SubscribeManagerRx<boolean>() 
 export const updatePurchasesRX = new SubscribeManagerRx<boolean>() 
 export const updateProductsRX = new SubscribeManagerRx<boolean>() 
+export const updatePurchasesAdminRx = new SubscribeManagerRx<boolean>() 

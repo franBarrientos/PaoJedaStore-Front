@@ -9,13 +9,23 @@ import {
   Flex,
   ListIcon,
   Stack,
-  Text
+  Text,
+  Button,
+  CircularProgress,
 } from "@chakra-ui/react";
 import { formatDate } from "../utils/dates";
+import apiClient from "../config/axiosClient";
+import { useToastResponses } from "../hook/useToastResponses";
+import { useState } from "react";
+import { updatePurchasesAdminRx } from "../helpers/subjectsRx.helper";
 type props = {
-    purchase:any
-}
-export const CardPurchaseAdmin:React.FC<props> = ({purchase}) => {
+  purchase: any;
+};
+export const CardPurchaseAdmin: React.FC<props> = ({ purchase }) => {
+  const { success, error } = useToastResponses();
+  const [isLoading, setIsLoading] = useState(false);
+  const [paid, setPaid] = useState(false);
+
   return (
     <Card
       minH={"md"}
@@ -47,11 +57,12 @@ export const CardPurchaseAdmin:React.FC<props> = ({purchase}) => {
             purchase.purchasesProducts.map((product: any) => {
               return (
                 <ListItem pr={2}>
-                  <Flex justifyContent={"flex-start"}>
+                  <Flex justifyContent={"flex-start"} alignItems={"center"}>
                     <ListIcon as={CheckIcon} color="green.500" />
                     <Text color={"ly.400"}>
-                      {product.product.name}
                       <span>{product.quantity} </span>
+                      {product.product.name}
+                      <span> en talle {product.size.name} </span>
                     </Text>
                   </Flex>
                 </ListItem>
@@ -81,6 +92,51 @@ export const CardPurchaseAdmin:React.FC<props> = ({purchase}) => {
         >
           <Heading size="md"> 💵 Total: </Heading>
           <Heading size={"md"}> ${purchase.totalPurchase}</Heading>
+          {purchase.state === "pendiente" && !paid && (
+            <>
+              {isLoading ? (
+                <Flex justifyContent={"center"} alignItems={"center"}>
+                  <CircularProgress isIndeterminate color="green.300" />
+                </Flex>
+              ) : (
+                <Button
+                  onClick={async () => {
+                    setIsLoading(true);
+                    try {
+                      const response = await apiClient.put(
+                        `/purchase/${purchase.id}`,
+                        {
+                          state: "paid",
+                        },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${localStorage.getItem(
+                              "token"
+                            )}`,
+                          },
+                        }
+                      );
+                      if (!response.data.ok) throw new Error("err");
+                      setPaid(true)
+                      updatePurchasesAdminRx.setSubject(true)
+                      success("Cambios guardados correctamente");
+                      setIsLoading(false);
+                    } catch (errorFromCatch) {
+                      console.log(errorFromCatch);
+                      error("No se pudo cambiar el estado");
+                      setIsLoading(false);
+                    }
+                  }}
+                  variant="solid"
+                  colorScheme="red"
+                  shadow={"xl"}
+                  p={1}
+                >
+                  Pagado
+                </Button>
+              )}
+            </>
+          )}
         </Stack>
       </Flex>
     </Card>

@@ -1,10 +1,11 @@
 import { SimpleGrid, Text, Box, Flex } from "@chakra-ui/react";
 import useSWR from "swr";
 import apiClient from "../../config/axiosClient";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { Paginacion } from "../../components/Paginacion";
 import { CardPurchaseAdmin } from "../../components/CardPurchaseAdmin";
 import { SearchPurchasestButton } from "../../components/SearchPurchasesButton";
+import { updatePurchasesAdminRx } from "../../helpers/subjectsRx.helper";
 
 export const Purchases = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -21,13 +22,27 @@ export const Purchases = () => {
     return response.data;
   };
 
-  const { data, isLoading, error } = useSWR(
+  const { data, isLoading, error, mutate } = useSWR(
     generateUrlWithPagination(),
     fetcher,
     {
       refreshInterval: 1000,
     }
   );
+
+  useEffect(() => {
+    const subscription = updatePurchasesAdminRx.getSubject.subscribe(
+      (value) => {
+        if (value) {
+         mutate()
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [currentPage]);
 
 
   if (isLoading) return <Text>Loading...</Text>;
