@@ -17,7 +17,7 @@ export const CardHistory: React.FC<PurchaseInterface> = ({
   id,
   purchasesProducts,
   totalPurchase,
-  createdAt
+  createdAt,
 }) => {
   return (
     <>
@@ -36,7 +36,7 @@ export const CardHistory: React.FC<PurchaseInterface> = ({
             </Heading>
             <Heading size="md">Productos: </Heading>
             <UnorderedList>
-              {purchasesProducts?.map((purchase) => {
+              {purchasesProducts?.map((purchase: any) => {
                 return (
                   <Stack
                     key={purchase.id}
@@ -48,7 +48,9 @@ export const CardHistory: React.FC<PurchaseInterface> = ({
                     <ListItem>
                       {(purchase.product as ProductInterface).name}
                     </ListItem>
-                    <Text>Cantidad: {purchase.quantity}</Text>
+                    <Text>
+                      Cantidad: {purchase.quantity} en {purchase.size.name || ""}
+                    </Text>
                   </Stack>
                 );
               })}
@@ -56,10 +58,10 @@ export const CardHistory: React.FC<PurchaseInterface> = ({
             <Heading size="md">
               Pago: {payment == "MP" ? "Mercado Pago" : "Efectivo"}
             </Heading>
-            <Heading size="md">
-              Fecha: {formatDate(createdAt || "")}
+            <Heading size="md">Fecha: {formatDate(createdAt || "")}</Heading>
+            <Heading mt={1} size="md">
+              💵 Total: ${totalPurchase}
             </Heading>
-            <Heading mt={1} size="md">💵 Total: ${totalPurchase}</Heading>
           </CardBody>
         </Stack>
       </Card>
