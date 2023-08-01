@@ -26,7 +26,7 @@ export default function MenuMobile({ isAdmin = false }: props) {
 
   return (
     <Menu>
-      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} bg={"ly.400"} fontSize={"xl"}>
+      <MenuButton as={Button} bg={"ly.400"} fontSize={{ base: "l", md: "xl" }}>
         {isAdmin ? "Menu" : " Categorias "}
       </MenuButton>
       <MenuList>
